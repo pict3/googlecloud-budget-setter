@@ -41,13 +41,10 @@ resource "google_service_account" "default" {
   display_name = "budget-setter-sa"
 }
 
-/*
-// いまはpict3側でロール設定
 resource "google_project_iam_member" "default" {
   role = "roles/billing.costsManager"
   member = "serviceAccount:${google_service_account.default.email}"
 }
-*/
 
 resource "google_compute_region_network_endpoint_group" "default" {
   for_each = toset([for location in data.google_cloud_run_locations.default.locations : location if can(regex("us-(?:west|central|east)1", location))])
@@ -104,20 +101,6 @@ module "lb-http" {
     }
   }
 }
-
-#resource "google_secret_manager_secret" "default" {
-#  secret_id = "billing-account-secret"
-#
-#  replication {
-#    automatic = true
-#  }
-#} 
-
-#resource "google_secret_manager_secret_version" "default" {
-#  secret = google_secret_manager_secret.default.id
-#
-#  secret_data = var.billing_account_id
-#}
 
 output "url" {
   value = "http://${module.lb-http.external_ip}"
